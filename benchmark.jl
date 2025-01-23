@@ -1,7 +1,10 @@
 include("./globalStrictPositive.jl")
+
 using .globalStrictPositive
 using DynamicPolynomials
 using Plots
+using DataFrames
+using CSV
 
 motzkin(x, y, z) = x^6 + y^4*z^2 + y^2*z^4 - 3x^2*y^2*z^2
 robinson(x, y, z) = x^4*y^2 + y^4*z^2 + x^2*z^4 - 3x^2*y^2*z^2
@@ -68,7 +71,7 @@ function robinson_benchmark_plot_approaching_zero(n)
   savefig("robinson_benchmark_approaching_zero.png")
 end
 
-function benchmark_plot_approaching_zero(n)
+function benchmark_approaching_zero(n)
   index      = zeros(Integer, n)
   t_motzkin  = zeros(n)
   m_motzkin  = zeros(Integer, n)
@@ -81,12 +84,32 @@ function benchmark_plot_approaching_zero(n)
     m_motzkin[i]  = out_motzkin[1]
     m_robinson[i] = out_robinson[1]
   end
-  plot(index, [t_motzkin t_robinson m_motzkin m_robinson], title="Approaching zero", label=["time - Motzkin" "time - Robinson" "deg - Motzkin" "deg - Robinson"], linewidth=3, dpi=600)
-  xlabel!("inverse separation")
-  savefig("benchmark_approaching_zero.png")
+  times = DataFrame((motzkin = t_motzkin, robinson = t_robinson))
+  m = DataFrame((motzkin = m_motzkin, robinson = m_robinson))
+  CSV.write("times_400.csv", times)
+  CSV.write("m_400.csv", m)
+  # plot(index, [t_motzkin t_robinson m_motzkin m_robinson], title="Approaching zero", label=["time - Motzkin" "time - Robinson" "deg - Motzkin" "deg - Robinson"], linewidth=3, dpi=600)
+end
+
+function plot_benchmark(times_file, m_file)
+  m = CSV.read(m_file, DataFrame)
+  m_plot = plot(Matrix(m), labels=permutedims(names(m)), legend=:outerbottom, legendcolumns=2, linewidth=2, dpi=300)
+  xlabel!(m_plot, "d")
+  ylabel!(m_plot, "m")
+  savefig(m_plot, "m_400.png")
+
+  times = CSV.read(times_file, DataFrame)
+  times_plot = plot(Matrix(times), labels=permutedims(names(times)), legend=:outerbottom, legendcolumns=2, linewidth=2, dpi=300)
+  xlabel!(times_plot, "d")
+  ylabel!(times_plot, "time (seconds)")
+  savefig(times_plot, "times_400.png")
+
+  plot(m_plot, times_plot, layout=(2, 1))
+  savefig("m_times_400.png")
 end
 
 @polyvar x y z
 
-motzkin_benchmark_plot_approaching_zero(100)
-benchmark_plot_approaching_zero(200)
+# motzkin_benchmark_plot_approaching_zero(100)
+# benchmark_approaching_zero(400)
+plot_benchmark("times_400.csv", "m_400.csv")

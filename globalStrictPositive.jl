@@ -1,7 +1,7 @@
 module globalStrictPositive
 
 export juliaPolyToMathematica, minimizeInMathematica
-export uniformApproxSOS
+export uniformApproxSOS, uniformApproxSOS2
 
 using SumOfSquares
 using DynamicPolynomials
@@ -13,7 +13,7 @@ import MathLink: WSymbol
 
 global const uniformApproxSOS_debug = false
 
-# Translates polynomial from DynamicPolynomials 
+# Translates polynomial from DynamicPolynomials
 # to W"" expression associated to MathLink
 function juliaPolyToMathematica(f, vars=variables(f))
   exponents   = map(mon -> mon.z, f.x)
@@ -51,27 +51,78 @@ function uniformApproxSOS(f, archimedean_n::Integer)
 
   m     = 0
   accum = n
-  expr  = f 
+  expr  = f
+
   model = SOSModel(Mosek.Optimizer)
   set_silent(model)
   @constraint(model, con, expr >= 0)
-  optimize!(model) 
+  optimize!(model)
 
   while termination_status(model) != OPTIMAL
     if uniformApproxSOS_debug
       println(">> Current m: ", m)
       println(">> Current expr: ", expr)
-    end 
+    end
+
     m     += 1
     accum += 1//factorial(m) * Folds.sum(map(var -> var^(2*m), vars))
     expr   = f - fStar//2 + fStar//(2*(M + n))*accum
+
     model  = SOSModel(Mosek.Optimizer)
     set_silent(model)
     @constraint(model, con, expr >= 0)
-    optimize!(model) 
+    optimize!(model)
   end
   repr = sos_decomposition(con)
   m, expr, repr
 end
+
+# g such that S(g) is bounded
+function uniformApproxSOS2(f, g)
+  M = 109//108 # sup(g + K)
+  R = 2 # R such that R - ||x||^2 \in QM(g)
+
+  vars = variables(f)
+  n    = length(vars)
+
+  if n == 0
+    error("Polynomial is a constant")
+  end
+
+  fStar = minimizeInMathematica(f, vars)
+  if fStar <= 0
+    error("Polynomial is not strictly positive")
+  end
+
+  eps   = fStar//(2*M*n*rationalize(exp(R)))
+
+  m     = 0
+  accum = n
+  expr  = f
+
+  model = SOSModel(Mosek.Optimizer)
+  set_silent(model)
+  @constraint(model, con, expr >= 0)
+  optimize!(model)
+
+  while termination_status(model) != OPTIMAL
+    if uniformApproxSOS_debug
+      println(">> Current m: ", m)
+      println(">> Current expr: ", expr)
+    end
+
+    m     += 1
+    accum += 1//factorial(m) * Folds.sum(map(var -> var^(2*m), vars))
+    expr   = f - eps*g*accum
+
+    model  = SOSModel(Mosek.Optimizer)
+    set_silent(model)
+    @constraint(model, con, expr >= 0)
+    optimize!(model)
+  end
+  repr = sos_decomposition(con)
+  m, expr, repr
+end
+
 
 end

@@ -89,12 +89,12 @@ function basic_test()
   out = uniformApproxSOS2(motzkin(x, y, z) + 1, g, 11, 14)
   println(">> m: ", out[1])
   println(">> expr: ", out[2])
-  println(">> repr: ", out[3])
+  # println(">> repr: ", out[3])
 end
 
 @polyvar x y z
 
-# basic_test()
+basic_test()
 # arch_benchmark_approaching_zero(400)
-g = 10 - x^2 - y^4 - z^8
-nonarch_benchmark_approaching_zero(400, g, 11, 14)
+# g = 10 - x^2 - y^4 - z^8
+# nonarch_benchmark_approaching_zero(400, g, 11, 14)

@@ -1,6 +1,6 @@
 FILE=test_juliaPolyToMathematica.jl
-FILE=benchmark.jl
 FILE=plots.jl
+FILE=benchmark.jl
 
 #all: runOutput
 all: run

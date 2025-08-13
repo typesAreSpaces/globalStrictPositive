@@ -78,10 +78,10 @@ function uniformApproxSOS(f, archimedean_n::Integer)
 end
 
 # g such that S(g) is bounded
-function uniformApproxSOS2(f, g)
-  M = 109//108 # sup(g + K)
-  R = 2 # R such that R - ||x||^2 \in QM(g)
-
+# K = 1
+# M = sup(g + K)
+# R such that Semialgebraic(g + K) \subseteq Semialgebraic(R - ||x||^2)
+function uniformApproxSOS2(f, g, M, R)
   vars = variables(f)
   n    = length(vars)
 
@@ -113,7 +113,7 @@ function uniformApproxSOS2(f, g)
 
     m     += 1
     accum += 1//factorial(m) * Folds.sum(map(var -> var^(2*m), vars))
-    expr   = f - eps*g*accum
+    expr   = f - eps*accum*g
 
     model  = SOSModel(Mosek.Optimizer)
     set_silent(model)
@@ -123,6 +123,5 @@ function uniformApproxSOS2(f, g)
   repr = sos_decomposition(con)
   m, expr, repr
 end
-
 
 end

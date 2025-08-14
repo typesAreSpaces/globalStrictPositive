@@ -2,42 +2,11 @@ include("./globalStrictPositive.jl")
 
 using .globalStrictPositive
 using DynamicPolynomials
-using Plots
 using DataFrames
 using CSV
-using LaTeXStrings
 
 motzkin(x, y, z) = x^6 + y^4*z^2 + y^2*z^4 - 3x^2*y^2*z^2
 robinson(x, y, z) = x^4*y^2 + y^4*z^2 + x^2*z^4 - 3x^2*y^2*z^2
-
-# TODO Delete this function: it is not used
-# Example:
-# benchmark_approaching_zero(n, robinson(x, y, z), "robinson_benchmark_approaching_zero_out.txt")
-function benchmark_approaching_zero(n, poly, file_name)
-  open(file_name, "w") do file
-    for i in 1:n
-      t = @elapsed out = uniformApproxSOS(poly + 1//i, 1)
-      write(file, "$i, $(out[1]), $t\n")
-    end
-  end
-end
-
-# TODO Delete this function: it is not used
-# Example:
-# benchmark_plot_approaching_zero(n, robinson(x, y, z), "Robinson approaching zero", "robinson_benchmark_approaching_zero.png")
-function benchmark_plot_approaching_zero(n, poly, _title, _fig)
-  t     = zeros(n)
-  r     = zeros(Integer, n)
-  index = zeros(Integer, n)
-  for i in 1:n
-    t[i]     = @elapsed out = uniformApproxSOS(poly + 1//i, 1)
-    r[i]     = out[1]
-    index[i] = i
-  end
-  plot(index, [t r], title=_title, label=["time" "deg"], linewidth=3)
-  xlabel!("inverse separation")
-  savefig(_fig)
-end
 
 function arch_benchmark_approaching_zero(n)
   index      = zeros(Integer, n)
@@ -82,6 +51,7 @@ function nonarch_benchmark_approaching_zero(n, g, M, R)
 end
 
 
+# TODO Move this function somewhere else
 function basic_test()
   g = -x^4 - x^2*y^2 + 2*x^2*y + x*y^2 - y^2
   g = 10 - x^2 - y^4 - z^8
@@ -95,5 +65,6 @@ end
 @polyvar x y z
 
 # basic_test()
+
 # arch_benchmark_approaching_zero(400)
 nonarch_benchmark_approaching_zero(400, 10 - x^2 - y^4 - z^8, 11, 14)

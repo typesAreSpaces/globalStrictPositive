@@ -8,7 +8,7 @@ using CSV
 using LaTeXStrings
 
 function plot_benchmark(times_file, r_file, num_samples)
-  r = CSV.read(m_file, DataFrame; missingstring="-")
+  r = CSV.read(r_file, DataFrame; missingstring="-")
   # r_plot = plot(Matrix(r), labels=permutedims(names(r)), legend=:outerbottom, legendcolumns=2, linewidth=2, dpi=300)
   # r_plot = plot(Matrix(r), labels=permutedims(names(r)), legend=:none, legendcolumns=2, linewidth=2, dpi=300, ylimits=(0,12), xlimits=(0,num_samples), yguidefontrotation=-90)
   r_plot = plot(Matrix(r), labels=permutedims(names(r)), legend=:none, legendcolumns=2, linewidth=2, dpi=300, ylimits=(0,12), xlimits=(0,num_samples), yticks=0:2:12)

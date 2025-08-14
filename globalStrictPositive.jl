@@ -49,7 +49,7 @@ function uniformApproxSOS(f, archimedean_n::Integer)
     error("Polynomial is not strictly positive")
   end
 
-  m     = 0
+  r     = 0
   accum = n
   expr  = f
 
@@ -60,12 +60,12 @@ function uniformApproxSOS(f, archimedean_n::Integer)
 
   while termination_status(model) != OPTIMAL
     if uniformApproxSOS_debug
-      println(">> Current m: ", m)
+      println(">> Current r: ", r)
       println(">> Current expr: ", expr)
     end
 
-    m     += 1
-    accum += 1//factorial(m) * Folds.sum(map(var -> var^(2*m), vars))
+    r     += 1
+    accum += 1//factorial(r) * Folds.sum(map(var -> var^(2*r), vars))
     expr   = f - fStar//2 + fStar//(2*(M + n))*accum
 
     model  = SOSModel(Mosek.Optimizer)
@@ -74,7 +74,7 @@ function uniformApproxSOS(f, archimedean_n::Integer)
     optimize!(model)
   end
   repr = sos_decomposition(con)
-  m, expr, repr
+  r, expr, repr
 end
 
 # g such that S(g) is bounded
@@ -96,7 +96,7 @@ function uniformApproxSOS2(f, g, M, R)
 
   eps   = fStar//(2*M*n*rationalize(exp(R)))
 
-  m     = 0
+  r     = 0
   accum = n
   expr  = f
 
@@ -107,12 +107,12 @@ function uniformApproxSOS2(f, g, M, R)
 
   while termination_status(model) != OPTIMAL
     if uniformApproxSOS_debug
-      println(">> Current m: ", m)
+      println(">> Current m: ", r)
       println(">> Current expr: ", expr)
     end
 
-    m     += 1
-    accum += 1//factorial(m) * Folds.sum(map(var -> var^(2*m), vars))
+    r     += 1
+    accum += 1//factorial(r) * Folds.sum(map(var -> var^(2*r), vars))
     expr   = f - eps*accum*g
 
     model  = SOSModel(Mosek.Optimizer)
@@ -121,7 +121,7 @@ function uniformApproxSOS2(f, g, M, R)
     optimize!(model)
   end
   repr = sos_decomposition(con)
-  m, expr, repr
+  r, expr, repr
 end
 
 end

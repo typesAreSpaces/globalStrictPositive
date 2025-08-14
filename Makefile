@@ -1,12 +1,23 @@
-FILE=test_juliaPolyToMathematica.jl
-FILE=plots.jl
-FILE=benchmark.jl
+PROG=julia
 
-#all: runOutput
-all: run
+.PHONY: test benchmark clean
 
-run:
-	julia ${FILE}
+all: r_and_times_400.png
+all: output.txt
 
-runOutput:
-	julia ${FILE} > output.txt
+r_and_times_400.png:
+	${PROG} plots.jl
+	magick convert r_400.png times_400.png -append r_and_times_400.png
+
+benchmark:
+	${PROG} benchmark.jl
+
+output.txt:
+	${PROG} benchmark.jl > output.txt
+
+test:
+	${PROG} test_juliaPolyToMathematica.jl
+
+clean:
+	rm *.png
+	rm output.txt

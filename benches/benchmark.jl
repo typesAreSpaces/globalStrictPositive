@@ -1,4 +1,7 @@
-include("./globalStrictPositive.jl")
+const SRC_DIR = "./../src/"
+const OUT_DIR = "./../out/"
+
+include(SRC_DIR * "globalStrictPositive.jl")
 
 using .globalStrictPositive
 using DynamicPolynomials
@@ -24,8 +27,8 @@ function arch_benchmark_approaching_zero(n)
   end
   times = DataFrame((Motzkin = t_motzkin, Robinson = t_robinson))
   r = DataFrame((Motzkin = r_motzkin, Robinson = r_robinson))
-  CSV.write("times_400.csv", times)
-  CSV.write("r_400.csv", r)
+  CSV.write(OUT_DIR * "times_400.csv", times)
+  CSV.write(OUT_DIR * "r_400.csv", r)
   # plot(index, [t_motzkin t_robinson r_motzkin r_robinson], title="Approaching zero", label=["time - Motzkin" "time - Robinson" "deg - Motzkin" "deg - Robinson"], linewidth=3, dpi=600)
 end
 
@@ -45,26 +48,12 @@ function nonarch_benchmark_approaching_zero(n, g, M, R)
   end
   times = DataFrame((Motzkin = t_motzkin, Robinson = t_robinson))
   r = DataFrame((Motzkin = r_motzkin, Robinson = r_robinson))
-  CSV.write("times_400.csv", times)
-  CSV.write("r_400.csv", r)
+  CSV.write(OUT_DIR * "times_400.csv", times)
+  CSV.write(OUT_DIR * "r_400.csv", r)
   # plot(index, [t_motzkin t_robinson r_motzkin r_robinson], title="Approaching zero", label=["time - Motzkin" "time - Robinson" "deg - Motzkin" "deg - Robinson"], linewidth=3, dpi=600)
 end
 
-
-# TODO Move this function somewhere else
-function basic_test()
-  g = -x^4 - x^2*y^2 + 2*x^2*y + x*y^2 - y^2
-  g = 10 - x^2 - y^4 - z^8
-
-  out = uniformApproxSOS2(motzkin(x, y, z) + 1, g, 11, 14)
-  println(">> m: ", out[1])
-  println(">> expr: ", out[2])
-  # println(">> repr: ", out[3])
-end
-
 @polyvar x y z
-
-# basic_test()
 
 # arch_benchmark_approaching_zero(400)
 nonarch_benchmark_approaching_zero(400, 10 - x^2 - y^4 - z^8, 11, 14)

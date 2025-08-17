@@ -1,4 +1,6 @@
-include("./globalStrictPositive.jl")
+const SRC_DIR = "./../src/"
+
+include(SRC_DIR * "globalStrictPositive.jl")
 using .globalStrictPositive
 using DynamicPolynomials
 using MathLink
